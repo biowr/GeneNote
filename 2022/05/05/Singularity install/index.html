@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Biowr">
+
+
+    <meta name="subtitle" content="Bioinformatics Study Notes">
+
+
+    <meta name="description" content="Bioinformatics Study Notes">
+
+
+    <meta name="keywords" content="Bioinformatics">
+
+
+
+
+<title>Singularity Install | GeneNote</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Roboto+Mono&display=swap');
+</style>
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/frame.js"></script>
+    
+
+
+
+
+
+
+
+
+
+
+  <meta name="generator" content="Hexo 6.1.0"></head>
+  <body>
+    <div class="mask-border">
+    </div>
+
+    <div class="wrapper">
+
+      <div class="header">
+  <div class="flex-container">
+    <div class="header-inner">
+      <div class="site-brand-container">
+        <a href="/">
+          
+            <img class="logo-img" src="/logo.svg" alt="logo_image">
+          
+        </a>
+      </div>
+      <div id="menu-btn" class="menu-btn" onclick="toggleMenu()">
+        Menu
+      </div>
+      <nav class="site-nav">
+        <ul class="menu-list">
+          
+            
+              <li class="menu-item">
+                <a href="/">Home</a>
+              </li> 
+                   
+          
+            
+              <li class="menu-item">
+                <a href="/archives/">Archive</a>
+              </li> 
+                   
+          
+            
+              <li class="menu-item">
+                <a href="/categories/gallery/">Gallery</a>
+              </li> 
+                   
+          
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main">
+        <div class="flex-container">
+          <article id="post">
+
+  
+    <div class="post-head">
+    <div class="post-info">
+        <div class="tag-list">
+            
+                
+                    <span class="post-tag">
+                        <a href="/tags/Linux/">
+                            Linux
+                        </a>
+                    </span>    
+                           
+            
+        </div>
+        <div class="post-title">
+            
+            
+                Singularity Install
+            
+            
+        </div>
+        <span class="post-date">
+            May 5, 2022
+        </span>
+    </div>
+    <div class="post-img">
+        
+            <div class="h-line-primary"></div>
+              
+    </div>
+</div>
+    <div class="post-content">
+    <h2 id="singularity"><a href="#singularity" class="headerlink" title="singularity"></a>singularity</h2><p>容器技术是一种以应用软件为中心的虚拟化技术。以应用软件为单元，将软件及所有的依赖打包成容器镜像，打包后的容器镜像可直接拷贝到不同的Linux主机上运行。通过容器技术，可以很好的解决安装软件时，依赖库的安装问题、软件环境的隔离以及软件环境的移植问题。</p>
+<p>Singularity为劳伦斯伯克利国家实验室开发专门用于高性能计算场景的容器技术，Singularity完全基于可移植性进行虚拟化，更加轻量级，部署更快，Singularity目前被广泛地各高性能计算中心。</p>
+<p>通过Singularity来满足作业运行的软件环境，首先是创建或者获取软件镜像，再将创建好的软件镜像上传到集群上运行；</p>
+<p>通过Singularity创建软件镜像，需要在有root权限的Linux主机上，或者在配置好fakeroot的Linux主机上以“fakeroot”的身份进行。</p>
+<p>下面将介绍如何在有root权限的主机上安装Singularity，以及如何使用Singularity创建软件镜像；</p>
+<p>同时介绍如何在已配置好fakeroot节点上，通过Singularity构建软件镜像。</p>
+<p>首先介绍在拥有root权限的个人主机上安装Singularity：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装依赖</span></span><br><span class="line">yum install -y gcc libuuid-devel squashfs-tools openssl-devel make</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装go</span></span><br><span class="line">export VERSION=1.17.2 OS=linux ARCH=amd64   </span><br><span class="line">wget https://dl.google.com/go/go$VERSION.$OS-$ARCH.tar.gz </span><br><span class="line">tar -C /usr/local -xzvf go$VERSION.$OS-$ARCH.tar.gz</span><br><span class="line">rm -f go$VERSION.$OS-$ARCH.tar.gz </span><br><span class="line">echo &#x27;export PATH=/usr/local/go/bin:$PATH&#x27; &gt;&gt; /etc/profile</span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装singularity</span></span><br><span class="line">export VERSION=3.9.2</span><br><span class="line">wget https://github.com/sylabs/singularity/releases/download/v$&#123;VERSION&#125;/singularity-ce-$&#123;VERSION&#125;.tar.gz </span><br><span class="line">tar -xzf singularity-ce-$&#123;VERSION&#125;.tar.gz</span><br><span class="line">cd singularity-ce-$&#123;VERSION&#125;</span><br><span class="line">./mconfig --prefix=/opt/singularity/$&#123;VERSION&#125;</span><br><span class="line">cd builddir/</span><br><span class="line">make &amp;&amp; make install</span><br><span class="line">echo &quot;export PATH=/opt/singularity/$&#123;VERSION&#125;/bin:\$PATH&quot; &gt;&gt; /etc/profile</span><br></pre></td></tr></table></figure>
+
+<p>接着介绍如何使用Singularity部署软件镜像，以软件molspin为例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">拉取docker镜像创建sandbox格式容器</span></span><br><span class="line">singularity build --sandbox molspin docker://centos:7.6.1810</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">通过交互的方式进入容器镜像，进行软件的安装</span></span><br><span class="line">singularity shell -w molspin</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装依赖</span></span><br><span class="line">yum install epel-release centos-release-scl -y</span><br><span class="line">yum install devtoolset-7 armadillo-devel -y</span><br><span class="line">source /opt/rh/devtoolset-7/enable</span><br><span class="line">echo &quot;source /opt/rh/devtoolset-7/enable&quot; &gt;&gt; /environment</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">注册并下载MolSpin安装包, 解压后进入</span></span><br><span class="line">unzip -d molspin molspin-v1.0.120819.zip</span><br><span class="line">cd molspin &amp;&amp; make</span><br><span class="line">cp molspin /usr/local/bin/</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">在安装软件完后退出镜像</span></span><br><span class="line">exit</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">生成sif文件</span></span><br><span class="line">singularity build molspin.sif molspin/</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">将创建好的软件镜像上传到高性能计算集群，加载singularity软件环境</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">运行镜像，其中example.msd为输入文件</span></span><br><span class="line">singularity exec molspin.sif  molspin -p 2 -a example.msd</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>SIF和sandbox两种格式的镜像是可以相互转换的；</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">1. 将SIF格式的容器转换成sandbox;</span></span><br><span class="line">singularity build --sandbox centos76 centos76.sif</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">2. 将sandbox容器镜像转化成SIF格式;</span></span><br><span class="line">singularity build centos76.sif centos76</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>同时，集群上部署了节点专门用于构建Singularity软件镜像，用户可以在该节点上使用fakeroot安装软件镜像，具体方式如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">登录专用节点</span></span><br><span class="line">ssh &lt;user_id&gt;@162.105.133.209</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">拉取docker镜像创建sandbox格式容器</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建容器时加入参数--fakeroot</span></span><br><span class="line">singularity build --fakeroot --sandbox molspin docker://centos:7.6.1810</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">通过交互的方式进入容器镜像，修改容器镜像</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">加入参数--fakeroot</span></span><br><span class="line">singularity shell --fakeroot -w molspin</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装依赖</span></span><br><span class="line">yum install epel-release centos-release-scl -y</span><br><span class="line">yum install devtoolset-7 armadillo-devel -y</span><br><span class="line">source /opt/rh/devtoolset-7/enable</span><br><span class="line">echo &quot;source /opt/rh/devtoolset-7/enable&quot; &gt;&gt; /environment</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">注册并下载MolSpin安装包, 解压后进入</span></span><br><span class="line">unzip -d molspin molspin-v1.0.120819.zip</span><br><span class="line">cd molspin &amp;&amp; make</span><br><span class="line">cp molspin /usr/local/bin/</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">在安装软件完后退出镜像</span></span><br><span class="line">exit</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">生成sif文件</span></span><br><span class="line">singularity build --fakeroot molspin.sif molspin/</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">运行镜像，其中example.msd为输入文件</span></span><br><span class="line">singularity exec molspin.sif molspin -p 2 -a example.msd</span><br></pre></td></tr></table></figure>
+
+<p>使用fakeroot创建的sandbox镜像，不能直接通过rm -rf 删除，删除方式如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">假设要删除的为文件夹名为molspin的sandbox镜像</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">首先，以可读的模式进入要删除的镜像</span></span><br><span class="line">singularity shell --fakeroot -w molspin</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">删除掉容器中，基于fakeroot创建的所有文件</span></span><br><span class="line">rm -rf /* 1&gt;/dev/null 2&gt;&amp;1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">退出镜像</span></span><br><span class="line">exit</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">将创建好的软件镜像上传到高性能计算集群，加载singularity软件环境</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">删除掉剩下的</span></span><br><span class="line">rm -rf molspin</span><br></pre></td></tr></table></figure>
+</div> 
+
+<script>
+    window.onload = detectors();
+</script>
+    <div class="post-footer">
+    <div class="h-line-primary"></div>
+    <nav class="post-nav">
+        <div class="prev-item">
+           
+        </div>
+        <div class="next-item">
+            
+                <div class="icon arrow-right"></div>
+                <div class="post-link">
+                  <a href="/2022/04/10/Bioinformatics-Links/">Next</a>  
+                </div>  
+            
+        </div>
+    </nav>
+</div>
+
+    
+      <div class="post-comment">
+
+     
+
+     
+    
+    
+
+</div>
+     
+  
+</article>
+        </div>
+      </div>
+      
+      <div class="footer">
+    <div class="flex-container">
+        <div class="footer-text">
+            
+                Exporing Genetics
+                <br>
+            
+            
+                ©2022 GeneNote | 
+            
+            
+                <a target="_blank" rel="noopener" href="https://ruiprime.cn/">Ruiprime</a> 
+                
+        </div>
+    </div>
+</div>
+
+    </div>
+
+  </body>
+</html>
